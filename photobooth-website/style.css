@@ -1,0 +1,94 @@
+body {
+    font-family: Georgia;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color:darksalmon;
+}
+
+.container{
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.camera-container{
+    position: relative;
+    margin-bottom: 20px;
+}
+
+#cameraFeed{
+    width: 320px;
+    height: 240px;
+    border: 1px solid #e1f5bc;
+    display: block;
+    transform: scaleX(-1);
+}
+
+#takePhotoButton{
+    margin-top: 10px;
+    padding: 10px 20px;
+    background-color:rgb(100, 197, 204);
+    color:white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#takePhotoButton:hover{
+    background-color: #0056b3;
+}
+
+.preview-container{
+    margin-top: 20px;
+}
+
+#photoStrip{
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+#photoStrip img{
+    width: 80px;
+    height: 60px;
+    border: 1px solid #eee;
+    object-fit: cover;
+}
+
+#downloadButton{
+    padding: 10px 20px;
+    background-color: #28a745;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#downloadButton:disabled{
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+#downloadButton:hover:enabled{
+    background-color: #1e7e34;
+}
+
+#toggleMirrorButton{
+    margin-top: 10px;
+    padding: 10px 15px;
+    background-color:rgb(168, 115, 218);
+    color: white;
+    border:none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-left: 10px;
+}
+
+#toggleMirrorButton:hover{
+    background-color: #639fcec0;
+}
