@@ -68,6 +68,8 @@ function downloadStrip() {
     stripCanvas.height = imageHeight;
 
     let xOffset = 0;
+    let imagesLoaded = 0; // Keep track of loaded images
+
     capturedImages.forEach(imageData => {
         const img = new Image();
         img.onload = () => {
@@ -79,8 +81,10 @@ function downloadStrip() {
             stripContext.drawImage(img, 0, 0, imageWidth, imageHeight);
             stripContext.restore();
             xOffset += imageWidth + padding;
+            imagesLoaded++; // Increment the counter
 
-            if (xOffset >= stripCanvas.width) {
+            // Trigger download only after all images are loaded
+            if (imagesLoaded === capturedImages.length) {
                 const finalImageDataURL = stripCanvas.toDataURL('image/png');
                 const a = document.createElement('a');
                 a.href = finalImageDataURL;
