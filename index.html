@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>By Jana</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="camera-container">
+            <video id="cameraFeed" autoplay playsinline></video>    
+            <button id="takePhotoButton">Take Photo</button>
+            <button id="toggleMirrorButton">Toggle Mirror</button>
+        </div>
+        <div class="preview-container">
+            <h2>Your Photos:</h2>
+            <div id="photoStrip"></div>
+            <button id="downloadButton" disabled>Download Strip</button>
+        </div>
+        <canvas id="hiddenCanvas" style="display:none;"></canvas>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
