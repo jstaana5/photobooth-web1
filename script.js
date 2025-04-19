@@ -4,12 +4,19 @@ const photoStrip = document.getElementById('photoStrip');
 const downloadButton = document.getElementById('downloadButton');
 const hiddenCanvas = document.getElementById('hiddenCanvas');
 const canvasContext = hiddenCanvas.getContext('2d');
-const toggleMirrorButton = document.getElementById('toggleMirrorButton');
+const layoutSelect = document.getElementById('layoutSelect');
+const finalStripPreview = document.getElementById('finalStripPreview');
+const finalPreviewCanvas = document.getElementById('finalPreviewCanvas');
+const finalPreviewContext = finalPreviewCanvas.getContext('2d');
+const finalDownloadButton = document.getElementById('finalDownloadButton');
+const retakePhotosButton = document.getElementById('retakePhotosButton');
+const flashOverlay = document.getElementById('flashOverlay'); // Get the flash overlay element
 
 let stream;
 const capturedImages = [];
 const numberOfPhotos = 3; 
-let isMirrored = true;      // starts the camera as mirrored
+let currentLayout = 'vertical-3'; // Default
+
 
 // get user's webcam
 async function enableCamera(){
@@ -22,21 +29,21 @@ async function enableCamera(){
     }
 }
 
-function updateMirrorEffect(){
-    if(isMirrored){
-        cameraFeed.style.transform = 'scaleX(-1)';
-        cameraFeed.style.webkitTransform = 'scaleX(-1)';
-        toggleMirrorButton.textContext = 'Disable Mirror';
-    } else {
-        cameraFeed.style.transform = 'scaleX(1)'    // not mirrored
-        cameraFeed.style.webkitTransform = 'scaleX(1)';
-        toggleMirrorButton.textContext = 'Enable Mirror';
-    }
-}
 
 // take the pic
 function takePhoto(){
     if(!stream) return;
+
+     // Trigger the flash effect
+     flashOverlay.style.opacity = 1;
+     flashOverlay.style.display = 'block';
+     setTimeout(() => {
+         flashOverlay.style.opacity = 0;
+         setTimeout(() => {
+             flashOverlay.style.display = 'none';
+         }, 300); // Duration of the fade-out (adjust as needed)
+     }, 250); // Short delay for full white (adjust as needed)
+ 
 
     hiddenCanvas.width = cameraFeed.videoWidth;
     hiddenCanvas.height = cameraFeed.videoHeight;
@@ -51,40 +58,120 @@ function takePhoto(){
 
     if(capturedImages.length === numberOfPhotos){
         takePhotoButton.disabled = true;
-        downloadButton.disabled = false;
+        downloadButton.disabled = false; // Enable the preview button
     }
+}
+
+// func to reset the photobooth
+function resetPhotobooth() {
+    capturedImages.length = 0;
+    photoStrip.innerHTML = '';
+    takePhotoButton.disabled = false;
+    downloadButton.disabled = true;
+    finalStripPreview.style.display = 'none';
+}
+
+// func to preview the final photostrip before downloading
+function previewStrip() {
+    if (capturedImages.length === 0) return;
+
+    const imageWidth = 200;
+    const imageHeight = (cameraFeed.videoHeight / cameraFeed.videoWidth) * imageWidth;
+    const padding = 10;
+    let canvasWidth;
+    let canvasHeight;
+    let xOffset = 0;
+    let yOffset = 0;
+
+    switch (currentLayout) {
+        case 'vertical-3':
+            canvasWidth = imageWidth;
+            canvasHeight = numberOfPhotos * imageHeight + (numberOfPhotos - 1) * padding;
+            break;
+        case 'horizontal-3':
+            canvasWidth = numberOfPhotos * imageWidth + (numberOfPhotos - 1) * padding;
+            canvasHeight = imageHeight;
+            break;
+        default:
+            canvasWidth = imageWidth;
+            canvasHeight = numberOfPhotos * imageHeight + (numberOfPhotos - 1) * padding;
+            break;
+    }
+
+    finalPreviewCanvas.width = canvasWidth;
+    finalPreviewCanvas.height = canvasHeight;
+    finalPreviewContext.clearRect(0, 0, canvasWidth, canvasHeight); // Clear previous preview
+
+    capturedImages.forEach(imageData => {
+        const img = new Image();
+        img.onload = () => {
+            switch (currentLayout) {
+                case 'vertical-3':
+                    finalPreviewContext.drawImage(img, 0, yOffset, imageWidth, imageHeight);
+                    yOffset += imageHeight + padding;
+                    break;
+                case 'horizontal-3':
+                    finalPreviewContext.drawImage(img, xOffset, 0, imageWidth, imageHeight);
+                    xOffset += imageWidth + padding;
+                    break;
+            }
+        };
+        img.src = imageData;
+    });
+
+    finalStripPreview.style.display = 'block'; // Show the preview section
 }
 
 // be able to download the photostrip
 function downloadStrip() {
     if (capturedImages.length === 0) return;
 
+    const selectedLayout = layoutSelect.value;
     const stripCanvas = document.createElement('canvas');
     const stripContext = stripCanvas.getContext('2d');
-    const imageWidth = 200;
+    const imageWidth = 200; // Adjust as needed
     const imageHeight = (cameraFeed.videoHeight / cameraFeed.videoWidth) * imageWidth;
     const padding = 10;
-    stripCanvas.width = capturedImages.length * imageWidth + (capturedImages.length - 1) * padding;
-    stripCanvas.height = imageHeight;
 
+    let canvasWidth;
+    let canvasHeight;
+
+    switch (selectedLayout) {
+        case 'vertical-3':
+            canvasWidth = imageWidth;
+            canvasHeight = numberOfPhotos * imageHeight + (numberOfPhotos - 1) * padding;
+            break;
+        case 'horizontal-3':
+            canvasWidth = numberOfPhotos * imageWidth + (numberOfPhotos - 1) * padding; // Use imageWidth for horizontal width
+            canvasHeight = imageHeight; // Use imageHeight for horizontal height
+            break;
+        default:
+            canvasWidth = imageWidth;
+            canvasHeight = numberOfPhotos * imageHeight + (numberOfPhotos - 1) * padding;
+            break;
+    }
+
+    stripCanvas.width = canvasWidth;
+    stripCanvas.height = canvasHeight;
+
+    let yOffset = 0;
     let xOffset = 0;
-    let imagesLoaded = 0; // Keep track of loaded images
 
-    capturedImages.forEach(imageData => {
+    capturedImages.forEach((imageData, index) => {
         const img = new Image();
         img.onload = () => {
-            stripContext.save();
-            if (isMirrored) { // Apply mirroring to the downloaded image as well
-                stripContext.translate(xOffset + imageWidth, 0);
-                stripContext.scale(-1, 1);
+            switch (selectedLayout) {
+                case 'vertical-3':
+                    stripContext.drawImage(img, 0, yOffset, imageWidth, imageHeight);
+                    yOffset += imageHeight + padding;
+                    break;
+                case 'horizontal-3':
+                    stripContext.drawImage(img, xOffset, 0, imageWidth, imageHeight); // Use imageWidth for width
+                    xOffset += imageWidth + padding;
+                    break;
             }
-            stripContext.drawImage(img, 0, 0, imageWidth, imageHeight);
-            stripContext.restore();
-            xOffset += imageWidth + padding;
-            imagesLoaded++; // Increment the counter
 
-            // Trigger download only after all images are loaded
-            if (imagesLoaded === capturedImages.length) {
+            if (index === capturedImages.length - 1) {
                 const finalImageDataURL = stripCanvas.toDataURL('image/png');
                 const a = document.createElement('a');
                 a.href = finalImageDataURL;
@@ -100,10 +187,20 @@ function downloadStrip() {
 
 // Event listeners
 takePhotoButton.addEventListener('click', takePhoto);
-downloadButton.addEventListener('click', downloadStrip);
-toggleMirrorButton.addEventListener('click', () =>{
-    isMirrored = !isMirrored;
-    updateMirrorEffect();
+downloadButton.addEventListener('click', previewStrip); // This line should use 'downloadButton'
+finalDownloadButton.addEventListener('click', downloadStrip);
+retakePhotosButton.addEventListener('click', () => {
+    finalStripPreview.style.display = 'none';
+    resetPhotobooth();
+});
+layoutSelect.addEventListener('change', (event) => {
+    console.log("Layout changed to:", event.target.value);
+    currentLayout = event.target.value;
+    capturedImages.length = 0;
+    photoStrip.innerHTML = '';
+    takePhotoButton.disabled = false;
+    downloadButton.disabled = true;
+    finalStripPreview.style.display = 'none';
 });
 
 // Enable the camera when the page loads

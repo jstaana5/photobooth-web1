@@ -8,15 +8,28 @@
 </head>
 <body>
     <div class="container">
+        <div class="layout-controls">
+            <h2>Choose Layout:</h2>
+            <select id="layoutSelect">
+                <option value="vertical-3">3 Photo Vertical</option>
+                <option value="horizontal-3">3 Photo Horizontal</option>
+                </select>
+        </div>
         <div class="camera-container">
+            <div id="flashOverlay" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-color: white; opacity: 0; z-index: 10; display: none;"></div>
             <video id="cameraFeed" autoplay playsinline></video>    
             <button id="takePhotoButton">Take Photo</button>
-            <button id="toggleMirrorButton">Toggle Mirror</button>
         </div>
         <div class="preview-container">
             <h2>Your Photos:</h2>
             <div id="photoStrip"></div>
             <button id="downloadButton" disabled>Download Strip</button>
+        </div>
+        <div id="finalStripPreview" style="display: none; text-align: center; margin-top: 20px;">
+            <h2>Final Photostrip Preview:</h2>
+            <canvas id="finalPreviewCanvas" style="max-width: 100%; height: auto; border: 1px solid #ccc;"></canvas>
+            <button id="finalDownloadButton">Download Strip</button>
+            <button id="retakePhotosButton">Retake Photos</button>
         </div>
         <canvas id="hiddenCanvas" style="display:none;"></canvas>
     </div>

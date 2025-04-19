@@ -77,18 +77,3 @@ body {
 #downloadButton:hover:enabled{
     background-color: #1e7e34;
 }
-
-#toggleMirrorButton{
-    margin-top: 10px;
-    padding: 10px 15px;
-    background-color:rgb(168, 115, 218);
-    color: white;
-    border:none;
-    border-radius: 5px;
-    cursor: pointer;
-    margin-left: 10px;
-}
-
-#toggleMirrorButton:hover{
-    background-color: #639fcec0;
-}
